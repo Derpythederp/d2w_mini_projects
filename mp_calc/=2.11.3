@@ -1,0 +1,2 @@
+Requirement already satisfied: Jinja2 in /home/derpy/.local/share/virtualenvs/mp_calc-LNH-5GK-/lib/python3.9/site-packages (3.1.2)
+Requirement already satisfied: MarkupSafe>=2.0 in /home/derpy/.local/share/virtualenvs/mp_calc-LNH-5GK-/lib/python3.9/site-packages (from Jinja2) (2.1.1)
