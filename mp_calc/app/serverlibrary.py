@@ -1,20 +1,20 @@
 
 
 def mergesort(array, byfunc=None):
-  pass
+    pass  
 
 class Stack:
-  pass
+    pass
 
 class EvaluateExpression:
-  pass
+    pass
 
 
 def get_smallest_three(challenge):
-  records = challenge.records
-  times = [r for r in records]
-  mergesort(times, lambda x: x.elapsed_time)
-  return times[:3]
+    records = challenge.records
+    times = [r for r in records]
+    mergesort(times, lambda x: x.elapsed_time)
+    return times[:3]
 
 
 

@@ -13,9 +13,7 @@
   {% for idx in range(users|length) %}
   	<tr>
       <th scope="row" class="lead">{{ idx+1 }}</th>
-      <td class="lead">
-      	#Replace Me#
-      </td>
+      <td class="lead">{{ users[idx] }} </td>
     </tr>
   {% endfor %}
   
