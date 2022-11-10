@@ -85,13 +85,13 @@ class Stack:
 
 
 class EvaluateExpression:
-    valid_char = '0123456789+-*/() '
+    valid_char = '0123456789+-*/() .'
     valid_char_set = set(valid_char)
-    valid_operator = '+-*/()'
-    
+    valid_operator = '+*/()'  # no negative
+
     def __init__(self, string=""):
         self.expression = string
-            
+
     @property
     def expression(self):
         return self.expr
@@ -99,7 +99,7 @@ class EvaluateExpression:
     @expression.setter
     def expression(self, new_expr):
         if set(new_expr).issubset(EvaluateExpression.valid_char_set) and len(new_expr) != 0:
-            self.expr = new_expr
+            self.expr = new_expr.replace(" ", "")
         else:
             self.expr = ""
 
@@ -107,41 +107,56 @@ class EvaluateExpression:
         result = self.expression
         for operator in EvaluateExpression.valid_operator:
             result = result.replace(operator, " " + operator + " ")
+
+        result = result.replace("-", " -")
+
         return result
-    
-    
+
     def __perform_operation(self, operand1, operand2, operator):
         if operator == "*":
             return operand1 * operand2
-        
+
         if operator == "/":
             return operand2 // operand1
-        
+
         if operator == "+":
             return operand1 + operand2
-        
+
         if operator == "-":
             return (operand2 - operand1)
 
-
     def process_operator(self, operand_stack, operator_stack):
-        if not(operand_stack.isEmpty) and not(operator_stack.isEmpty):
+        if not (operand_stack.isEmpty) and not (operator_stack.isEmpty):
             operator = operator_stack.pop()
             operand1 = operand_stack.pop()
             operand2 = operand_stack.pop()
             result = self.__perform_operation(operand1, operand2, operator)
             operand_stack.push(result)
 
+    def add_plus(self, tokens: list):
+        i = -2
+        for token in tokens:
+            i += 1
+            a = tokens[i]
+            if i < 0:
+                continue
+            if token.replace(".", "", 1).lstrip("-").isdigit() and tokens[i].replace(".", "", 1).lstrip("-").isdigit():
+                tokens.insert(i + 1, "+")
+
     def evaluate(self):
         operand_stack = Stack([])
         operator_stack = Stack([])
         expression = self.insert_space()
         tokens = expression.split()
+        self.add_plus(tokens)
+        print(tokens)
 
-        for token in tokens:      
-            if token.isdigit():
-                operand_stack.push(int(token))
-            
+        for token in tokens:
+
+            if token.replace(".", "", 1).lstrip("-").isdigit():
+                floatized_token = float(token)
+                operand_stack.push(floatized_token)
+
             if token == "(":
                 operator_stack.push(token)
 
@@ -154,34 +169,40 @@ class EvaluateExpression:
                     result = self.__perform_operation(operand1, operand2, operator)
                     operand_stack.push(result)
                     operator = operator_stack.pop()
-            
+
             if token in "+-*/":
-                # 5 cases (assuming there is other operators in the stack): 
+                # 5 cases (assuming there is other operators in the stack):
                 # 1) next_operator --> +- and token --> */
                 # 2) next_operator --> */ and token --> +-
                 # 3) next_operator --> +- and token --> +-
                 # 4) next_operator --> */ and token --> */
-                # 5) next_operator --> ( 
+                # 5) next_operator --> (
                 # Cases 3 and 4 means both operations have equal precedence under BODMAS
                 # Cases 1 and 2 means that */ has to be done first then can push token onto operand
                 # In other words, cases 2, 3, 4 has to be done first... since top thing on operator stack has highest precedence
 
+                if token in "-":  # separate parser to add one plus onto operator stack
+                    operator_stack.push("+")
+
+                print(list(operator_stack), list(operand_stack))
                 while not (operator_stack.isEmpty):
-                    next_operator = operator_stack.pop()  
+                    next_operator = operator_stack.pop()
                     operator_stack.push(next_operator)  # return operator after checking
-                    if (next_operator in "+-" and token in "*/") or next_operator == "(":  # case 1, top operator lower precedence than new operator token and case 5
+                    if (
+                            next_operator in "+-" and token in "*/") or next_operator == "(":  # case 1, top operator lower precedence than new operator token and case 5
                         break
                     # otherwise, case 2, 3 and 4
                     self.process_operator(operand_stack, operator_stack)
-                    
+
                 operator_stack.push(token)
 
         # Phase 2: Repeatedly process the operators from the top of operator_stack until operator_stack is empty.
         # Phase 2 kicks in only when we have non-bracked operations, so we can just evaluate all the way
         while not operator_stack.isEmpty:
             self.process_operator(operand_stack, operator_stack)
-        
+
         return operand_stack.pop()
+
 
 
 def get_smallest_three(challenge):
